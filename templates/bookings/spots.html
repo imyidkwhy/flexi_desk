@@ -1,0 +1,155 @@
+{% extends "base.html" %}
+
+{% block title %}
+<title>Workspace | FlexiDesk</title>
+{% endblock %}
+
+{% block content %}
+<style>
+    .glass-card {
+        background: rgba(255, 255, 255, 0.02);
+        backdrop-filter: blur(24px);
+        -webkit-backdrop-filter: blur(24px);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        transition: all 0.3s ease;
+    }
+
+    .glass-card:hover {
+        background: rgba(255, 255, 255, 0.04);
+        border-color: rgba(52, 211, 153, 0.2);
+        transform: translateY(-2px);
+    }
+
+    .status-badge {
+        backdrop-filter: blur(4px);
+    }
+</style>
+
+<div class="min-h-screen text-white relative overflow-hidden">
+
+    <div
+        class="fixed top-0 left-1/2 -translate-x-1/2 w-[800px] h-[500px] bg-emerald-500/5 rounded-full blur-[120px] pointer-events-none z-0">
+    </div>
+
+    <nav class="relative z-10 border-b border-white/5 bg-[#050505]/80 backdrop-blur-md sticky top-0">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-20">
+                <div class="flex items-center gap-2">
+                    <div class="w-2 h-2 bg-emerald-400 rounded-full shadow-[0_0_8px_#34d399]"></div>
+                    <span class="text-xs font-bold uppercase tracking-[0.3em] text-gray-400">Flexi|Desk</span>
+                </div>
+
+                <div class="flex items-center gap-6">
+                    <a href="https://github.com/imyidkwhy" target="_blank"
+                        class="text-gray-500 hover:text-white transition-colors">
+                        <svg viewBox="0 0 24 24" class="h-6 w-6 fill-current" aria-hidden="true">
+                            <path fill-rule="evenodd"
+                                d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"
+                                clip-rule="evenodd" />
+                        </svg>
+                    </a>
+
+                    {% if user.is_authenticated %}
+                    <form action="{% url 'bookings:account_logout' %}" method="post">
+                        {% csrf_token %}
+                        <button type="submit"
+                            class="text-sm font-bold text-gray-500 hover:text-white transition-colors uppercase tracking-wider">
+                            Logout
+                        </button>
+                    </form>
+                    {% else %}
+                    <a href="{% url 'bookings:account_login' %}"
+                        class="text-sm font-bold text-white bg-white/10 px-4 py-2 rounded-xl hover:bg-white/20 transition-all">
+                        Sign In
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+
+        <div class="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-6">
+            <div>
+                <h1 class="text-4xl font-bold tracking-tight text-white mb-2">Available Spaces</h1>
+                <p class="text-gray-500">Find and book your perfect workspace environment.</p>
+            </div>
+
+            <div
+                class="glass-card px-6 py-4 rounded-2xl flex items-center gap-4 hover:!translate-y-0 hover:!border-white/10">
+                <div class="text-right">
+                    <p class="text-[10px] uppercase tracking-widest text-gray-500 font-bold">Total Spots</p>
+                    <p class="text-2xl font-bold text-emerald-400">{{ spots.count }}</p>
+                </div>
+                <div
+                    class="h-10 w-10 rounded-full bg-emerald-500/10 flex items-center justify-center border border-emerald-500/20">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-emerald-400" fill="none"
+                        viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {% for spot in spots %}
+            <div class="glass-card rounded-[2rem] overflow-hidden flex flex-col h-full group">
+
+                <div class="relative h-48 w-full overflow-hidden bg-white/5">
+                    {% if spot.image %}
+                    <img src="{{ spot.image.url }}"
+                        class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
+                    {% else %}
+                    <div class="w-full h-full flex items-center justify-center text-gray-700 font-bold">NO IMAGE</div>
+                    {% endif %}
+
+                    <div class="absolute top-4 right-4 z-10">
+                        {% if spot.status == 'AV' %}
+                        <span
+                            class="status-badge inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 backdrop-blur-md">
+                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                            Free
+                        </span>
+                        {% else %}
+                        <span
+                            class="status-badge inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-black/40 text-gray-400 border border-white/10 backdrop-blur-md">
+                            <span class="w-1.5 h-1.5 rounded-full bg-gray-500"></span>
+                            Busy
+                        </span>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="p-6 flex flex-col flex-grow justify-between">
+                    <div>
+                        <h3 class="text-xl font-bold">{{ spot.title }}</h3>
+                        <p class="text-gray-500">Floor {{ spot.floor }} • Cab {{ spot.cabinet }}</p>
+                    </div>
+
+                    <div class="mt-4 pt-6 border-t border-white/5">
+                        {% if spot.status == 'AV' %}
+                        <a href="{% url 'bookings:spot_detail' slug=spot.slug %}"
+                            class="block w-full py-3 bg-white text-black text-center text-sm font-bold rounded-xl hover:bg-emerald-400 hover:text-black transition-all duration-300 shadow-lg shadow-black/20">
+                            Book Now
+                        </a>
+                        {% else %}
+                        <button disabled
+                            class="block w-full py-3 bg-white/5 text-gray-500 text-center text-sm font-bold rounded-xl cursor-not-allowed">
+                            Unavailable
+                        </button>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div class="col-span-full text-center py-20">
+                <p class="text-gray-500">No spots found yet.</p>
+            </div>
+            {% endfor %}
+        </div>
+
+    </main>
+</div>
+{% endblock %}
